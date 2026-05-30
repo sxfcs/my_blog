@@ -1,0 +1,39 @@
+name: Deploy to PythonAnywhere
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+      
+      - name: 设置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: 打包项目
+        run: |
+          zip -r deploy.zip . -x "venv/*" "*.pyc" "__pycache__/*" ".git/*" "db.sqlite3" ".env"
+      
+      - name: 部署到 PythonAnywhere
+        uses: umuttopalak/pythonanywhere-deploy-action@v1
+        with:
+          username: ${{ secrets.PA_USERNAME }}
+          api_token: ${{ secrets.PA_API_TOKEN }}
+          domain_name: lzysxfcs.pythonanywhere.com
+          local_path: deploy.zip
+          remote_path: /home/lzysxfcs/my_blog
+          reload_web_app: true
