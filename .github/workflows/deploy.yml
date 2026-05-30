@@ -1,4 +1,3 @@
-﻿@'
 name: Deploy
 
 on:
@@ -9,18 +8,10 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
     steps:
       - uses: actions/checkout@v4
       
-      - name: 清理并打包代码
-        run: |
-          # 清理可能存在的旧文件
-          rm -f deploy.tar.gz
-          # 打包，忽略警告
-          tar -czf deploy.tar.gz --exclude=venv --exclude=.git --exclude=db.sqlite3 --exclude=__pycache__ --exclude=.github --exclude=deploy.tar.gz . || true
-      
-      - name: 部署到 PythonAnywhere
+      - name: Deploy to PythonAnywhere
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -28,5 +19,9 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./
           server-dir: /home/lzysxfcs/my_blog/
-          dangerous-clean-slate: false
-'@ | Out-File -FilePath ".github\workflows\deploy.yml" -Encoding utf8
+          exclude: |
+            venv/
+            .git/
+            __pycache__/
+            .github/
+            db.sqlite3
