@@ -1,9 +1,8 @@
-name: Deploy to PythonAnywhere
+﻿name: Deploy
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -11,42 +10,17 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - name: 检出代码
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
       
-      - name: 设置 Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-      
-      - name: 安装依赖
+      - name: 打包代码
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          tar -czf deploy.tar.gz --exclude=venv --exclude=.git --exclude=db.sqlite3 --exclude=__pycache__ --exclude=.github .
       
-      - name: 打包项目
-        run: |
-          zip -r deploy.zip . -x "venv/*" "*.pyc" "__pycache__/*" ".git/*" "db.sqlite3" ".env"
-      
-      - name: 通过 SCP 上传文件
-        uses: appleboy/scp-action@v0.1.7
+      - name: 部署到 PythonAnywhere
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          host: ssh.pythonanywhere.com
-          username: ${{ secrets.PA_USERNAME }}
-          password: ${{ secrets.PA_PASSWORD }}
-          source: "deploy.zip"
-          target: "/home/${{ secrets.PA_USERNAME }}/"
-          
-      - name: 通过 SSH 解压并重载
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ssh.pythonanywhere.com
-          username: ${{ secrets.PA_USERNAME }}
-          password: ${{ secrets.PA_PASSWORD }}
-          script: |
-            cd /home/${{ secrets.PA_USERNAME }}/my_blog
-            unzip -o ../deploy.zip
-            rm ../deploy.zip
-            python3.10 manage.py migrate --noinput
-            python3.10 manage.py collectstatic --noinput
-            touch /var/www/lzysxfcs_pythonanywhere_com_wsgi.py
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./
+          server-dir: /home/lzysxfcs/my_blog/
