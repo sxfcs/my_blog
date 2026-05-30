@@ -66,6 +66,7 @@
             display: flex;
             align-items: center;
             gap: 16px;
+            flex-wrap: wrap;
         }
         .article-meta .date::before {
             content: "📅 ";
@@ -183,6 +184,44 @@
         .search-info a:hover {
             text-decoration: underline;
         }
+        /* 分类导航样式 */
+        .category-nav {
+            max-width: 800px;
+            margin: 0 auto 20px;
+            padding: 0 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .category-nav a {
+            background: white;
+            padding: 8px 20px;
+            border-radius: 30px;
+            text-decoration: none;
+            color: #4a5568;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            border: 1px solid #e2e8f0;
+        }
+        .category-nav a:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        .category-nav a.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+        /* 文章元数据中的分类链接样式 */
+        .article-meta .category a {
+            color: #718096;
+            text-decoration: none;
+        }
+        .article-meta .category a:hover {
+            color: #667eea;
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -190,6 +229,7 @@
         <h1>阿宇的技术博客</h1>
         <p>记录学习与成长 · 分享技术与思考</p>
     </div>
+    
     <!-- 搜索框 -->
     <div class="search-container">
         <form method="get" action="{% url 'blog:article_list' %}" class="search-form">
@@ -197,12 +237,31 @@
             <button type="submit" class="search-btn">🔍 搜索</button>
         </form>
     </div>
+    
+    <!-- 分类导航栏（新增） -->
+    <div class="category-nav">
+        <a href="{% url 'blog:article_list' %}" class="{% if not current_category %}active{% endif %}">全部</a>
+        {% for cat in categories %}
+        <a href="?category={{ cat.slug }}" class="{% if current_category and current_category.slug == cat.slug %}active{% endif %}">
+            {{ cat.name }}
+        </a>
+        {% endfor %}
+    </div>
+    
     <div class="container">
         <!-- 搜索提示 -->
         {% if query %}
         <div class="search-info">
             <p>🔍 搜索 "{{ query }}" 共找到 {{ articles|length }} 篇文章</p>
             <a href="{% url 'blog:article_list' %}">清除搜索</a>
+        </div>
+        {% endif %}
+        
+        <!-- 分类筛选提示（新增） -->
+        {% if current_category and not query %}
+        <div class="search-info">
+            <p>📁 分类 "{{ current_category.name }}" 共找到 {{ articles|length }} 篇文章</p>
+            <a href="{% url 'blog:article_list' %}">查看全部</a>
         </div>
         {% endif %}
         
@@ -215,6 +274,9 @@
                 <div class="article-meta">
                     <span class="date">{{ article.created_time|date:"Y年m月d日" }}</span>
                     <span class="views">👁️ {{ article.total_views }} 次阅读</span>
+                    {% if article.category %}
+                    <span class="category">📁 <a href="?category={{ article.category.slug }}">{{ article.category.name }}</a></span>
+                    {% endif %}
                 </div>
                 <div class="article-excerpt">
                     {{ article.content|striptags|truncatechars:120 }}
@@ -227,6 +289,9 @@
                 {% if query %}
                     <p>😢 没有找到与 "{{ query }}" 相关的文章</p>
                     <a href="{% url 'blog:article_list' %}">← 返回首页</a>
+                {% elif current_category %}
+                    <p>📁 分类 "{{ current_category.name }}" 下还没有文章</p>
+                    <a href="{% url 'blog:article_list' %}">← 查看全部文章</a>
                 {% else %}
                     <p>✨ 还没有文章，去后台写一篇吧！</p>
                 {% endif %}

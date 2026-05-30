@@ -1,20 +1,32 @@
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
-from .models import Article
+from .models import Article, Category  # 添加 Category 导入
 
 def article_list(request):
     articles = Article.objects.all()
     query = request.GET.get('q', '')  # 获取搜索关键词
+    category_slug = request.GET.get('category', '')  # 获取分类参数
     
+    # 按分类筛选
+    current_category = None
+    if category_slug:
+        current_category = get_object_or_404(Category, slug=category_slug)
+        articles = articles.filter(category=current_category)
+    
+    # 按关键词搜索
     if query:
-        # 同时搜索标题和内容
         articles = articles.filter(
             Q(title__icontains=query) | Q(content__icontains=query)
         )
     
+    # 获取所有分类（用于导航栏）
+    categories = Category.objects.all()
+    
     return render(request, 'blog/article_list.html', {
         'articles': articles,
-        'query': query,  # 把关键词传回模板，用于保留输入框内容
+        'query': query,
+        'categories': categories,
+        'current_category': current_category,  # 当前选中的分类
     })
 
 def article_detail(request, pk):
