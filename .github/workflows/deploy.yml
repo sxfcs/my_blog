@@ -14,26 +14,31 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v4
       
-      - name: 设置 Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-      
-      - name: 安装依赖
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-      
       - name: 打包项目
         run: |
+          # 排除不需要的文件
           zip -r deploy.zip . -x "venv/*" "*.pyc" "__pycache__/*" ".git/*" "db.sqlite3" ".env"
       
-      - name: 部署到 PythonAnywhere
-        uses: umuttopalak/pythonanywhere-deploy-action@v1
+      - name: 通过 SSH 部署到 PythonAnywhere
+        uses: appleboy/scp-action@v0.1.7
         with:
+          host: ${{ secrets.PA_HOST }}
           username: ${{ secrets.PA_USERNAME }}
-          api_token: ${{ secrets.PA_API_TOKEN }}
-          domain_name: lzysxfcs.pythonanywhere.com
-          local_path: deploy.zip
-          remote_path: /home/lzysxfcs/my_blog
-          reload_web_app: true
+          password: ${{ secrets.PA_PASSWORD }}
+          source: "deploy.zip"
+          target: "/home/${{ secrets.PA_USERNAME }}/"
+          strip_components: 0
+      
+      - name: 解压并重载应用
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PA_HOST }}
+          username: ${{ secrets.PA_USERNAME }}
+          password: ${{ secrets.PA_PASSWORD }}
+          script: |
+            cd /home/${{ secrets.PA_USERNAME }}/my_blog
+            unzip -o ../deploy.zip
+            rm ../deploy.zip
+            python manage.py migrate --noinput
+            python manage.py collectstatic --noinput
+            touch /var/www/lzysxfcs_pythonanywhere_com_wsgi.py
