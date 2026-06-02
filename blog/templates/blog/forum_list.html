@@ -1,0 +1,178 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}讨论区 - 阿宇的技术博客{% endblock %}
+
+{% block content %}
+<div class="forum-header">
+    <h1>讨论区</h1>
+    {% if user.is_authenticated %}
+    <a href="{% url 'blog:forum_new' %}" class="btn-new-topic">➕ 发布新主题</a>
+    {% else %}
+    <a href="/admin/login/?next={% url 'blog:forum_list' %}" class="btn-login">🔐 登录后发布</a>
+    {% endif %}
+</div>
+
+<!-- 搜索框 -->
+<div class="forum-search">
+    <form method="get" action="">
+        <input type="text" name="q" placeholder="搜索主题..." value="{{ query }}">
+        <button type="submit">搜索</button>
+    </form>
+</div>
+
+<!-- 主题列表 -->
+<div class="topic-list">
+    {% for topic in topics %}
+    <div class="topic-item">
+        <div class="topic-info">
+            <h3><a href="{% url 'blog:forum_detail' topic.pk %}">{{ topic.title }}</a></h3>
+            <div class="topic-meta">
+                由 {{ topic.author.username }} 发布于 {{ topic.created_time|date:"Y-m-d H:i" }}
+                {% if topic.article %}
+                · 关联文章：《{{ topic.article.title }}》
+                {% endif %}
+            </div>
+        </div>
+        <div class="topic-stats">
+            <span>💬 {{ topic.replies.count }} 回复</span>
+            <span>👁️ {{ topic.view_count }} 阅读</span>
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state">
+        <p>暂无主题，成为第一个发布主题的人吧！</p>
+        {% if not user.is_authenticated %}
+        <p><a href="/admin/login/?next={% url 'blog:forum_new' %}" class="login-link">登录</a> 后即可发布</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+<!-- 分页 -->
+<div class="pagination">
+    {% if topics.has_previous %}
+        <a href="?page=1">&laquo; 首页</a>
+        <a href="?page={{ topics.previous_page_number }}">上一页</a>
+    {% endif %}
+    
+    <span class="current">第 {{ topics.number }} / {{ topics.paginator.num_pages }} 页</span>
+    
+    {% if topics.has_next %}
+        <a href="?page={{ topics.next_page_number }}">下一页</a>
+        <a href="?page={{ topics.paginator.num_pages }}">尾页 &raquo;</a>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+    .forum-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+    .btn-new-topic {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: opacity 0.2s;
+    }
+    .btn-new-topic:hover {
+        opacity: 0.9;
+        color: white;
+    }
+    .btn-login {
+        background: #edf2f7;
+        color: #4a5568;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        border: 1px solid #e2e8f0;
+        transition: all 0.2s;
+    }
+    .btn-login:hover {
+        background: #e2e8f0;
+        color: #667eea;
+    }
+    .topic-item {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: box-shadow 0.2s;
+    }
+    .topic-item:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .topic-info {
+        flex: 1;
+    }
+    .topic-info h3 {
+        margin: 0 0 8px 0;
+    }
+    .topic-info h3 a {
+        color: #1a202c;
+        text-decoration: none;
+    }
+    .topic-info h3 a:hover {
+        color: #667eea;
+    }
+    .topic-meta {
+        font-size: 0.8rem;
+        color: #718096;
+    }
+    .topic-stats {
+        text-align: right;
+        font-size: 0.8rem;
+        color: #718096;
+        min-width: 120px;
+    }
+    .topic-stats span {
+        display: block;
+        margin: 5px 0;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: 12px;
+    }
+    .empty-state .login-link {
+        color: #667eea;
+        text-decoration: none;
+    }
+    .empty-state .login-link:hover {
+        text-decoration: underline;
+    }
+    .pagination {
+        text-align: center;
+        margin-top: 30px;
+    }
+    .pagination a, .pagination .current {
+        display: inline-block;
+        padding: 8px 12px;
+        margin: 0 5px;
+        border-radius: 6px;
+        text-decoration: none;
+    }
+    .pagination a {
+        background: white;
+        color: #667eea;
+    }
+    .pagination a:hover {
+        background: #667eea;
+        color: white;
+    }
+    .pagination .current {
+        background: #667eea;
+        color: white;
+    }
+</style>
+{% endblock %}

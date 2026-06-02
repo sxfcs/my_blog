@@ -1,0 +1,243 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}{{ topic.title }} - 讨论区{% endblock %}
+
+{% block content %}
+<div class="topic-detail">
+    <div class="topic-header">
+        <h1>{{ topic.title }}</h1>
+        <div class="topic-meta">
+            由 <strong>{{ topic.author.username }}</strong> 发布于 {{ topic.created_time|date:"Y-m-d H:i" }}
+            · 阅读 {{ topic.view_count }} 次
+            · 💬 {{ topic.replies.count }} 回复
+        </div>
+        {% if topic.article %}
+        <div class="topic-article-link">
+            📖 关联文章：《<a href="{% url 'blog:article_detail' topic.article.pk %}">{{ topic.article.title }}</a>》
+        </div>
+        {% endif %}
+        
+        <!-- 主题操作按钮：作者或管理员可见 -->
+        {% if user == topic.author or user.is_staff %}
+        <div class="topic-actions">
+            <a href="{% url 'blog:forum_topic_edit' topic.pk %}" class="topic-edit">✏️ 编辑主题</a>
+            <a href="{% url 'blog:forum_topic_delete' topic.pk %}" class="topic-delete" onclick="return confirm('确定要删除这个主题及其所有回复吗？此操作不可恢复！')">🗑️ 删除主题</a>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="topic-content">
+        {{ topic.content|linebreaks|safe }}
+    </div>
+    
+    <hr>
+    
+    <div class="replies-section">
+        <h3>回复 ({{ replies.count }})</h3>
+        
+        {% for reply in replies %}
+        <div class="reply-item" id="reply-{{ reply.pk }}">
+            <div class="reply-header">
+                <strong>{{ reply.author.username }}</strong>
+                <span class="reply-date">{{ reply.created_time|date:"Y-m-d H:i" }}</span>
+                <!-- 作者或管理员可见编辑/删除按钮 -->
+                {% if user == reply.author or user.is_staff %}
+                <div class="reply-actions">
+                    <a href="{% url 'blog:forum_reply_edit' reply.pk %}" class="reply-edit">✏️ 编辑</a>
+                    <a href="{% url 'blog:forum_reply_delete' reply.pk %}" class="reply-delete" onclick="return confirm('确定要删除这条回复吗？')">🗑️ 删除</a>
+                </div>
+                {% endif %}
+            </div>
+            <div class="reply-content">
+                {{ reply.content|linebreaks }}
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-replies">
+            <p>还没有回复，抢个沙发吧！</p>
+        </div>
+        {% endfor %}
+    </div>
+    
+    {% if user.is_authenticated %}
+    <div class="reply-form">
+        <h3>发表回复</h3>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">提交回复</button>
+        </form>
+    </div>
+    {% else %}
+    <div class="login-prompt">
+        <p>请 <a href="{% url 'admin:login' %}?next={{ request.path }}">登录</a> 后发表回复</p>
+    </div>
+    {% endif %}
+    
+    <div class="back-link">
+        <a href="{% url 'blog:forum_list' %}">← 返回讨论区列表</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+    .topic-detail {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    .topic-header {
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .topic-meta {
+        color: #718096;
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+    }
+    .topic-actions {
+        margin-top: 15px;
+        display: flex;
+        gap: 15px;
+    }
+    .topic-actions a {
+        font-size: 0.85rem;
+        padding: 4px 12px;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    .topic-edit {
+        background: #edf2f7;
+        color: #4a5568;
+    }
+    .topic-edit:hover {
+        background: #e2e8f0;
+        color: #667eea;
+    }
+    .topic-delete {
+        background: #fff5f5;
+        color: #e53e3e;
+    }
+    .topic-delete:hover {
+        background: #fed7d7;
+        color: #c53030;
+    }
+    .topic-content {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        margin-bottom: 30px;
+    }
+    .reply-item {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .reply-header {
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    .reply-date {
+        font-size: 0.8rem;
+        color: #718096;
+    }
+    .reply-actions {
+        display: flex;
+        gap: 10px;
+    }
+    .reply-edit, .reply-delete {
+        font-size: 0.75rem;
+        text-decoration: none;
+        padding: 2px 8px;
+        border-radius: 4px;
+    }
+    .reply-edit {
+        color: #667eea;
+        background: #edf2f7;
+    }
+    .reply-edit:hover {
+        background: #e2e8f0;
+    }
+    .reply-delete {
+        color: #e53e3e;
+        background: #fff5f5;
+    }
+    .reply-delete:hover {
+        background: #fed7d7;
+    }
+    .reply-form {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        margin-top: 30px;
+    }
+    .reply-form textarea {
+        width: 100%;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 12px;
+        font-family: inherit;
+        resize: vertical;
+    }
+    .reply-form textarea:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+    .reply-form button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: opacity 0.2s;
+    }
+    .reply-form button:hover {
+        opacity: 0.9;
+    }
+    .login-prompt {
+        text-align: center;
+        padding: 30px;
+        background: #f8fafc;
+        border-radius: 12px;
+        margin-top: 30px;
+    }
+    .login-prompt a {
+        color: #667eea;
+        text-decoration: none;
+    }
+    .back-link {
+        text-align: center;
+        margin-top: 40px;
+    }
+    .back-link a {
+        color: #667eea;
+        text-decoration: none;
+    }
+    .back-link a:hover {
+        text-decoration: underline;
+    }
+    .empty-replies {
+        text-align: center;
+        padding: 40px;
+        background: #f8fafc;
+        border-radius: 12px;
+        color: #718096;
+    }
+    hr {
+        margin: 20px 0;
+        border: none;
+        border-top: 1px solid #e2e8f0;
+    }
+</style>
+{% endblock %}

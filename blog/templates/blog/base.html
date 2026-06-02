@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}阿宇的技术博客{% endblock %}</title>
+    <style>
+        /* 全局样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f5f7fa;
+            color: #1a202c;
+            line-height: 1.6;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        .header h1 a {
+            color: white;
+            text-decoration: none;
+        }
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        /* 导航栏 */
+        .nav {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 0 20px;
+        }
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+        }
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+        .nav-links a {
+            color: #4a5568;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover {
+            color: #667eea;
+        }
+        .user-links {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .user-links a {
+            color: #4a5568;
+            text-decoration: none;
+            font-size: 0.9rem;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .user-links a:hover {
+            background: #edf2f7;
+            color: #667eea;
+        }
+        /* 注册按钮高亮样式 */
+        .user-links a:first-child {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .user-links a:first-child:hover {
+            opacity: 0.9;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .user-links .username {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+        
+        /* 消息提示样式 */
+        .messages-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 10px 20px;
+        }
+        .alert {
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            animation: slideDown 0.3s ease-out;
+        }
+        .alert-success {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+        }
+        .alert-error {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #fc8181;
+        }
+        .alert-info {
+            background: #bee3f8;
+            color: #2c5282;
+            border: 1px solid #90cdf4;
+        }
+        .alert-warning {
+            background: #feebc8;
+            color: #7b341e;
+            border: 1px solid #fbd38d;
+        }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* 修改：默认容器样式用于详情页等 */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        /* 新增：全宽容器（用于首页左右两栏） */
+        .container-full {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            color: #718096;
+            font-size: 0.8rem;
+            border-top: 1px solid #e2e8f0;
+            margin-top: 40px;
+        }
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.8rem; }
+            .container { padding: 20px 16px; }
+            .container-full { padding: 20px 16px; }
+            .nav-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="header">
+        <h1><a href="{% url 'blog:article_list' %}">阿宇的技术博客</a></h1>
+        <p>记录学习与成长 · 分享技术与思考</p>
+    </div>
+    
+    <!-- 导航栏 -->
+    <div class="nav">
+        <div class="nav-container">
+            <div class="nav-links">
+                <a href="{% url 'blog:article_list' %}">首页</a>
+                <a href="{% url 'blog:forum_list' %}">讨论区</a>
+                {% if user.is_authenticated and user.is_staff %}
+                <a href="/admin/">后台</a>
+                {% endif %}
+            </div>
+            <div class="user-links">
+                {% if user.is_authenticated %}
+                <span class="username">👤 {{ user.username }}</span>
+                <a href="{% url 'blog:logout' %}">退出</a>
+                {% else %}
+                <a href="{% url 'blog:register' %}">注册</a>
+                <a href="{% url 'blog:login' %}">登录</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- ========== 新增：消息提示区域 ========== -->
+    {% if messages %}
+    <div class="messages-container">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- 修改：使用 block 控制容器类型 -->
+    {% block container %}
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+    {% endblock %}
+    
+    <footer>
+        <p>© 2026 阿宇的技术博客 | 用 Django 搭建</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,80 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}发布新主题 - 讨论区{% endblock %}
+
+{% block content %}
+<div class="new-topic">
+    <h1>发布新主题</h1>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="{{ form.title.id_for_label }}">标题</label>
+            {{ form.title }}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.content.id_for_label }}">内容</label>
+            {{ form.content }}
+            <small>支持 Markdown 格式</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.article.id_for_label }}">关联文章（可选）</label>
+            {{ form.article }}
+        </div>
+        
+        <button type="submit">发布主题</button>
+        <a href="{% url 'blog:forum_list' %}" class="cancel">取消</a>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .new-topic {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+    .form-group input[type="text"],
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 1rem;
+    }
+    .form-group textarea {
+        font-family: monospace;
+    }
+    .form-group small {
+        display: block;
+        margin-top: 5px;
+        color: #718096;
+        font-size: 0.8rem;
+    }
+    button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    .cancel {
+        margin-left: 10px;
+        color: #718096;
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
