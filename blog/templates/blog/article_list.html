@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>阿宇的技术博客</title>
     <style>
         * {
@@ -15,6 +15,8 @@
             background: #f5f7fa;
             color: #1a202c;
             line-height: 1.6;
+            overflow-x: hidden;
+            max-width: 100%;
         }
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -45,10 +47,12 @@
             justify-content: space-between;
             align-items: center;
             padding: 12px 0;
+            flex-wrap: wrap;
         }
         .nav-links {
             display: flex;
             gap: 30px;
+            flex-wrap: wrap;
         }
         .nav-links a {
             color: #4a5568;
@@ -63,6 +67,7 @@
             display: flex;
             gap: 15px;
             align-items: center;
+            flex-wrap: wrap;
         }
         .user-links a {
             color: #4a5568;
@@ -141,13 +146,6 @@
             border-top: 1px solid #e2e8f0;
             margin-top: 40px;
         }
-        @media (max-width: 600px) {
-            .header h1 { font-size: 1.8rem; }
-            .nav-container {
-                flex-direction: column;
-                gap: 10px;
-            }
-        }
         
         /* ========== 左右两栏布局 ========== */
         .home-layout {
@@ -170,16 +168,6 @@
             position: sticky;
             top: 20px;
             align-self: flex-start;
-        }
-        
-        /* 响应式：小屏幕时侧边栏移到下方 */
-        @media (max-width: 768px) {
-            .home-layout {
-                flex-direction: column;
-            }
-            .sidebar {
-                position: static;
-            }
         }
         
         /* ========== 文章卡片样式 ========== */
@@ -309,6 +297,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         .search-info a {
             color: #667eea;
@@ -379,6 +369,8 @@
             font-weight: 600;
             font-size: 1rem;
             color: #1a202c;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         
         .sidebar-title .more-link {
@@ -438,6 +430,190 @@
         .empty-sidebar a {
             color: #667eea;
             text-decoration: none;
+        }
+
+        /* ========== 手机端响应式样式 ========== */
+        @media (max-width: 768px) {
+            /* 头部调整 */
+            .header {
+                padding: 40px 15px;
+            }
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            .header p {
+                font-size: 0.9rem;
+            }
+            
+            /* 导航栏 */
+            .nav-container {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px 0;
+            }
+            .nav-links {
+                gap: 20px;
+                justify-content: center;
+            }
+            .nav-links a {
+                font-size: 0.9rem;
+            }
+            .user-links {
+                gap: 10px;
+                justify-content: center;
+            }
+            .user-links a {
+                font-size: 0.85rem;
+                padding: 4px 10px;
+            }
+            .user-links .username {
+                font-size: 0.85rem;
+            }
+            
+            /* 消息提示 */
+            .messages-container {
+                padding: 8px 15px;
+            }
+            .alert {
+                padding: 10px 15px;
+                font-size: 0.85rem;
+            }
+            
+            /* 首页左右两栏改上下布局 */
+            .home-layout {
+                flex-direction: column;
+                gap: 20px;
+                padding: 20px 15px;
+            }
+            .sidebar {
+                position: static;
+                width: 100%;
+            }
+            
+            /* 文章卡片 */
+            .article-card {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+            .article-title {
+                font-size: 1.2rem;
+                margin-bottom: 8px;
+            }
+            .article-meta {
+                font-size: 0.75rem;
+                gap: 10px;
+            }
+            .article-excerpt {
+                font-size: 0.9rem;
+            }
+            .read-more {
+                margin-top: 12px;
+                font-size: 0.85rem;
+            }
+            
+            /* 搜索框 */
+            .search-container {
+                margin-bottom: 15px;
+            }
+            .search-form {
+                padding: 8px;
+            }
+            .search-input {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+            .search-btn {
+                padding: 0 18px;
+                font-size: 0.9rem;
+            }
+            
+            /* 分类导航 */
+            .category-nav {
+                gap: 8px;
+                margin-bottom: 15px;
+            }
+            .category-nav a {
+                padding: 6px 14px;
+                font-size: 0.8rem;
+            }
+            
+            /* 搜索提示 */
+            .search-info {
+                padding: 8px 15px;
+                font-size: 0.85rem;
+            }
+            
+            /* 侧边栏卡片 */
+            .sidebar-card {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+            .sidebar-title {
+                font-size: 0.95rem;
+                margin-bottom: 12px;
+            }
+            .forum-sidebar-title {
+                font-size: 0.85rem;
+            }
+            .forum-sidebar-meta {
+                font-size: 0.65rem;
+            }
+            
+            /* 空状态 */
+            .empty-state {
+                padding: 40px 20px;
+                font-size: 0.9rem;
+            }
+            
+            /* 后台管理链接 */
+            .admin-link {
+                margin-top: 30px;
+                padding-top: 15px;
+            }
+            
+            /* 发布新主题按钮 */
+            .btn-new-topic, .btn-login {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+            
+            /* 页脚 */
+            footer {
+                padding: 20px 15px;
+                font-size: 0.7rem;
+                margin-top: 30px;
+            }
+        }
+
+        /* 超小屏幕（手机竖屏） */
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            .nav-links {
+                gap: 15px;
+            }
+            .nav-links a {
+                font-size: 0.85rem;
+            }
+            .user-links a {
+                font-size: 0.8rem;
+                padding: 4px 8px;
+            }
+            .article-title {
+                font-size: 1.1rem;
+            }
+            .article-meta {
+                font-size: 0.7rem;
+                gap: 8px;
+            }
+            .category-nav a {
+                padding: 4px 12px;
+                font-size: 0.75rem;
+            }
+            .sidebar-title {
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>

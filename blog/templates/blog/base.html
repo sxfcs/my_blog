@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>{% block title %}阿宇的技术博客{% endblock %}</title>
     <style>
         /* 全局样式 */
@@ -16,6 +16,8 @@
             background: #f5f7fa;
             color: #1a202c;
             line-height: 1.6;
+            overflow-x: hidden;
+            max-width: 100%;
         }
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -52,6 +54,7 @@
         .nav-links {
             display: flex;
             gap: 30px;
+            flex-wrap: wrap;
         }
         .nav-links a {
             color: #4a5568;
@@ -66,6 +69,7 @@
             display: flex;
             gap: 15px;
             align-items: center;
+            flex-wrap: wrap;
         }
         .user-links a {
             color: #4a5568;
@@ -159,13 +163,86 @@
             border-top: 1px solid #e2e8f0;
             margin-top: 40px;
         }
-        @media (max-width: 600px) {
-            .header h1 { font-size: 1.8rem; }
-            .container { padding: 20px 16px; }
-            .container-full { padding: 20px 16px; }
+
+        /* ========== 手机端响应式样式 ========== */
+        @media (max-width: 768px) {
+            /* 头部调整 */
+            .header {
+                padding: 40px 15px;
+            }
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            .header p {
+                font-size: 0.9rem;
+            }
+            
+            /* 导航栏 */
             .nav-container {
                 flex-direction: column;
                 gap: 10px;
+                padding: 10px 0;
+            }
+            .nav-links {
+                gap: 20px;
+                justify-content: center;
+            }
+            .nav-links a {
+                font-size: 0.9rem;
+            }
+            .user-links {
+                gap: 10px;
+            }
+            .user-links a {
+                font-size: 0.85rem;
+                padding: 4px 10px;
+            }
+            .user-links .username {
+                font-size: 0.85rem;
+            }
+            
+            /* 消息提示 */
+            .messages-container {
+                padding: 8px 15px;
+            }
+            .alert {
+                padding: 10px 15px;
+                font-size: 0.85rem;
+            }
+            
+            /* 容器内边距 */
+            .container {
+                padding: 20px 16px;
+            }
+            .container-full {
+                padding: 20px 16px;
+            }
+            
+            /* 页脚 */
+            footer {
+                padding: 20px 15px;
+                font-size: 0.7rem;
+                margin-top: 30px;
+            }
+        }
+
+        /* 超小屏幕（手机竖屏） */
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            .nav-links {
+                gap: 15px;
+            }
+            .nav-links a {
+                font-size: 0.85rem;
+            }
+            .user-links a {
+                font-size: 0.8rem;
+                padding: 4px 8px;
+            }
+            .container {
+                padding: 15px 12px;
             }
         }
     </style>
@@ -199,7 +276,7 @@
         </div>
     </div>
     
-    <!-- ========== 新增：消息提示区域 ========== -->
+    <!-- 消息提示区域 -->
     {% if messages %}
     <div class="messages-container">
         {% for message in messages %}
@@ -210,7 +287,7 @@
     </div>
     {% endif %}
     
-    <!-- 修改：使用 block 控制容器类型 -->
+    <!-- 使用 block 控制容器类型 -->
     {% block container %}
     <div class="container">
         {% block content %}{% endblock %}
